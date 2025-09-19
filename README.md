@@ -4,6 +4,6 @@ Specifically snap Blender, flatpak Gimp and Krita since these installs do not se
 
 Requirements: Snap or Flatpak installed apps, ImageMagick
 
-Quick install instructions, e.g., copy .thumbnailer files to ~/.local/share/thumbnailers/.
+Quick install instructions, e.g., copy .thumbnailer files to ~/.local/share/thumbnailers/
 
-Optional: instructions to refresh thumbnails, e.g., rm -r ~/.cache/thumbnails/* && nemo -q.
+Optional: instructions to refresh thumbnails, e.g., rm -r ~/.cache/thumbnails/* && nemo -q
