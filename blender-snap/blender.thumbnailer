@@ -1,0 +1,4 @@
+[Thumbnailer Entry]
+TryExec=/snap/blender/current/blender-thumbnailer
+Exec=/snap/blender/current/blender-thumbnailer %i %o
+MimeType=application/x-blender;

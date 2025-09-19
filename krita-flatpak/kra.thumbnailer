@@ -1,0 +1,5 @@
+[Thumbnailer Entry]
+TryExec=unzip
+Exec=sh -c 'unzip -p "$(realpath "$1")" preview.png > "$2"' dummy %i %o
+MimeType=application/x-krita;
+

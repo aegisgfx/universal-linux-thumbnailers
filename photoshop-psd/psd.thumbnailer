@@ -1,0 +1,5 @@
+[Thumbnailer Entry]
+TryExec=convert
+Exec=sh -c 'convert "$(realpath "$1")[0]" -thumbnail "$2" png:"$3"' dummy %i %s %o
+MimeType=image/vnd.adobe.photoshop;
+

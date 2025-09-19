@@ -1,0 +1,4 @@
+[Thumbnailer Entry]
+TryExec=convert
+Exec=convert %i -layers merge -thumbnail %s png:%o
+MimeType=image/x-xcf;
