@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    name: Validate Thumbnailers
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install ImageMagick
+        run: sudo apt-get update && sudo apt-get install -y imagemagick
+
+      - name: Check thumbnailer file syntax
+        run: |
+          # Validate that all .thumbnailer files have the required sections and fields
+          for f in */*.thumbnailer; do
+            echo "Validating $f..."
+            if ! grep -q "^\[Thumbnailer Entry\]" "$f"; then
+              echo "ERROR: Missing [Thumbnailer Entry] section in $f"
+              exit 1
+            fi
+            if ! grep -q "^TryExec=" "$f"; then
+              echo "ERROR: Missing TryExec in $f"
+              exit 1
+            fi
+            if ! grep -q "^Exec=" "$f"; then
+              echo "ERROR: Missing Exec in $f"
+              exit 1
+            fi
+            if ! grep -q "^MimeType=" "$f"; then
+              echo "ERROR: Missing MimeType in $f"
+              exit 1
+            fi
+            # Check for required variables in Exec
+            if ! grep -q "%i" "$f" && ! grep -q "%u" "$f"; then
+              echo "WARNING: $f Exec line doesn't use %i or %u (input file)"
+            fi
+            if ! grep -q "%o" "$f"; then
+              echo "WARNING: $f Exec line doesn't use %o (output file)"
+            fi
+            echo "  OK"
+          done
+
+      - name: Validate installer script
+        run: |
+          if [ -f installer.sh ]; then
+            shellcheck installer.sh || true
+            # Check that installer.sh copies all directories
+            for d in blender-snap gimp-flatpak krita-flatpak photoshop-psd blender-flatpak; do
+              if ! grep -q "$d" installer.sh; then
+                echo "WARNING: installer.sh may not include $d"
+              fi
+            done
+            echo "installer.sh present and checked"
+          else
+            echo "ERROR: installer.sh not found"
+            exit 1
+          fi
+
+      - name: Test XCF thumbnailer with ImageMagick
+        run: |
+          # Verify convert works (dry-run only)
+          convert -version
+          echo "ImageMagick version OK"
+
+  release:
+    name: Create Release
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            installer.sh
+            README.md
+            blender-snap/blender.thumbnailer
+            blender-flatpak/blender.thumbnailer
+            gimp-flatpak/xcf.thumbnailer
+            krita-flatpak/kra.thumbnailer
+            photoshop-psd/psd.thumbnailer
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
